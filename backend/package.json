@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "heroku-postbuild": "cd frontend && npm install && npm run build",
+    "build-frontend": "cd frontend && npm install && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

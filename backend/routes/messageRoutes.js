@@ -80,21 +80,7 @@ router.get('/notifications', protect, async (req, res) => {
   }
 });
 
-// Mark message as read
-router.patch('/:id/read', protect, async (req, res) => {
-  try {
-    const message = await Message.findById(req.params.id);
-    if (!message) return res.status(404).json({ message: 'Message not found' });
-    if (!message.receiver.equals(req.user._id))
-      return res.status(403).json({ message: 'Not authorized' });
 
-    message.read = true;
-    await message.save();
-    res.json({ message: 'Message marked as read' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 router.post('/send-public', async (req, res) => {
   try {
     const { name, email, content } = req.body;
@@ -118,5 +104,20 @@ router.post('/send-public', async (req, res) => {
   }
 });
 
+// Mark message as read
+router.patch('/:id/read', protect, async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.id);
+    if (!message) return res.status(404).json({ message: 'Message not found' });
+    if (!message.receiver.equals(req.user._id))
+      return res.status(403).json({ message: 'Not authorized' });
+
+    message.read = true;
+    await message.save();
+    res.json({ message: 'Message marked as read' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;

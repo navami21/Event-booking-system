@@ -5,25 +5,8 @@ const Event = require('../model/eventData');
 const Booking = require('../model/bookingData');
 const bookEvent = require('../utils/bookEvent');
 
-// Book a FREE event (no payment required)
-router.post('/:eventId', protect, async (req, res) => {
-  try {
-    const { eventId } = req.params;
-    const { seats } = req.body;
 
-    const event = await Event.findById(eventId);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
 
-    if (event.isPaid) {
-      return res.status(400).json({ message: 'Paid event. Please complete payment to book.' });
-    }
-
-    const booking = await bookEvent({ eventId, user: req.user, seats });
-    res.status(200).json({ message: 'Booking successful', booking });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
 
 // View user's bookings
 router.get('/my', protect, async (req, res) => {
@@ -37,17 +20,18 @@ router.get('/my', protect, async (req, res) => {
     res.status(500).json({ message: 'Failed to load your bookings' });
   }
 });
-router.patch('/:id/checkin', protect, controllerOnly, async (req, res) => {
-  try {
-    const booking = await Booking.findById(req.params.id);
-    if (!booking) return res.status(404).json({ message: 'Booking not found' });
 
-    booking.status = 'check-in';
-    await booking.save();
-    res.json({ message: 'User successfully checked in', booking });
-  } catch (error) {
-    console.error('Check-in error:', error);
-    res.status(500).json({ message: 'Server error' });
+
+// View user's bookings
+router.get('/my', protect, async (req, res) => {
+  try {
+    const bookings = await Booking.find({ userId: req.user.id })
+      .populate('eventId')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ bookings });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load your bookings' });
   }
 });
 
@@ -83,6 +67,7 @@ router.get('/admin/bad-bookings', protect, adminOnly, async (req, res) => {
   }
 });
 
+
 //DELETE /api/admin/bad-bookings 
 router.delete('/admin/bad-bookings', protect, adminOnly, async (req, res) => {
   try {
@@ -92,4 +77,40 @@ router.delete('/admin/bad-bookings', protect, adminOnly, async (req, res) => {
     res.status(500).json({ message: 'Error deleting bad bookings' });
   }
 });
+
+
+router.patch('/:id/checkin', protect, controllerOnly, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+    booking.status = 'check-in';
+    await booking.save();
+    res.json({ message: 'User successfully checked in', booking });
+  } catch (error) {
+    console.error('Check-in error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Book a FREE event (no payment required)
+router.post('/:eventId', protect, async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { seats } = req.body;
+
+    const event = await Event.findById(eventId);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+
+    if (event.isPaid) {
+      return res.status(400).json({ message: 'Paid event. Please complete payment to book.' });
+    }
+
+    const booking = await bookEvent({ eventId, user: req.user, seats });
+    res.status(200).json({ message: 'Booking successful', booking });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 module.exports = router;

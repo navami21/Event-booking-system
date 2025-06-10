@@ -81,31 +81,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get event by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    res.json({event});
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
 
-// Update event (admin only)
-router.put('/:id', protect, adminOnly, async (req, res) => {
-  try {
-    const event = await Event.findByIdAndUpdate(
-      req.params.id,
-      { ...req.body, updatedAt: new Date() },
-      { new: true }
-    );
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    res.json({ message: 'Event updated', event });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+
 // Controller gets their assigned events
 router.get('/controller/assigned-events', protect, async (req, res) => {
   if (req.user.role !== 'controller') {
@@ -120,19 +97,6 @@ router.get('/controller/assigned-events', protect, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
-
-// Delete event (admin only)
-router.delete('/:id', protect, adminOnly, async (req, res) => {
-  try {
-    const event = await Event.findByIdAndDelete(req.params.id);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    res.json({ message: 'Event deleted' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
 // Booking an event (user)
 router.post('/book/:id', protect, async (req, res) => {
   try {
@@ -168,6 +132,43 @@ router.post('/assign-controller/:eventId', protect, adminOnly, async (req, res) 
     res.status(500).json({ message: err.message });
   }
 });
+
+// Update event (admin only)
+router.put('/:id', protect, adminOnly, async (req, res) => {
+  try {
+    const event = await Event.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, updatedAt: new Date() },
+      { new: true }
+    );
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json({ message: 'Event updated', event });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+// Get event by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json({event});
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Delete event (admin only)
+router.delete('/:id', protect, adminOnly, async (req, res) => {
+  try {
+    const event = await Event.findByIdAndDelete(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json({ message: 'Event deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 
 

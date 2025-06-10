@@ -20,6 +20,7 @@ router.post('/signup',async(req,res)=>{
         res.status(500).send({message:err.message})
     }
 })
+
 // Controller signup (will be pending approval)
 router.post('/controller/signup', async (req, res) => {
   const { name, email, password } = req.body;
@@ -167,17 +168,6 @@ router.post('/approve-controller/:id', protect, adminOnly, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-router.get('/controllers', protect, adminOnly, async (req, res) => {
-  try {
-    const controllers = await User.find(
-      { role: 'controller', approved: true },
-      '_id name email' // return only necessary fields
-    );
-    res.json(controllers);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 // Reject controller request (delete user)
 router.delete('/reject-controller/:id', protect, adminOnly, async (req, res) => {
   try {
@@ -188,6 +178,18 @@ router.delete('/reject-controller/:id', protect, adminOnly, async (req, res) => 
 
     await controller.deleteOne();
     res.json({ message: 'Controller rejected and removed' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/controllers', protect, adminOnly, async (req, res) => {
+  try {
+    const controllers = await User.find(
+      { role: 'controller', approved: true },
+      '_id name email' // return only necessary fields
+    );
+    res.json(controllers);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

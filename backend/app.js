@@ -16,24 +16,25 @@ const stripeRoutes=require('./routes/stripeRoutes')
 const messageRoutes=require('./routes/messageRoutes')
 const path=require('path')
 
-//deployment--------
-if(process.env.NODE_ENV==='production'){
-    app.use(express.static(path.join(__dirname,"/frontend/dist")))
-
-    app.get('*',(req,res)=>{
-        res.sendFile(path.resolve(__dirname,'frontend','dist','index.html'))
-    })
-}else{
-    app.get('/login',(req,res)=>{
-        res.send("API is running")
-    })
-}
 
 app.use('/api/users',userRoutes)
 app.use('/api/events',eventRoutes)
 app.use('/api/bookings',bookingRoutes)
 app.use('/api/stripe',stripeRoutes)
 app.use('/api/messages',messageRoutes)
+
+//deployment--------
+if(process.env.NODE_ENV==='production'){
+    app.use(express.static(path.join(__dirname,"../frontend/dist")))
+
+    app.use((req,res)=>{
+        res.sendFile(path.resolve(__dirname,'../frontend','dist','index.html'))
+    })
+}else{
+    app.get('/login',(req,res)=>{
+        res.send("API is running")
+    })
+}
 
 
 app.listen(process.env.PORT,()=>{
