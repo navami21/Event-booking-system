@@ -1,6 +1,6 @@
+require('dotenv').config()
 const express=require('express')
 const router=express.Router()
-require('dotenv').config()
 const User=require('../model/userData')
 const generateToken=require('../utils/generateToken')
 const {protect,adminOnly}=require('../middleware/auth')

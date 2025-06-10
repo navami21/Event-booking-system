@@ -8,11 +8,26 @@ app.use(morgan('dev'))
 app.use(cors());
 app.use(express.json())
 
+
 const userRoutes=require('./routes/userRoutes')
 const eventRoutes=require('./routes/eventRoutes')
-const bookingRoutes=require('./routes/bookinRoutes')
+const bookingRoutes=require('./routes/bookingRoutes')
 const stripeRoutes=require('./routes/stripeRoutes')
 const messageRoutes=require('./routes/messageRoutes')
+const path=require('path')
+
+//deployment--------
+if(process.env.NODE_ENV==='production'){
+    app.use(express.static(path.join(__dirname,"/frontend/dist")))
+
+    app.get('*',(req,res)=>{
+        res.sendFile(path.resolve(__dirname,'frontend','dist','index.html'))
+    })
+}else{
+    app.get('/login',(req,res)=>{
+        res.send("API is running")
+    })
+}
 
 app.use('/api/users',userRoutes)
 app.use('/api/events',eventRoutes)
@@ -23,4 +38,4 @@ app.use('/api/messages',messageRoutes)
 
 app.listen(process.env.PORT,()=>{
     console.log(`Server is running on PORT ${process.env.PORT}`)
-});
+})
